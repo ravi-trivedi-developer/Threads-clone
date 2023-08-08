@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useState } from "react";
 import { UserValidations } from "@/lib/validations/users";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -18,6 +18,10 @@ import {
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Textarea } from "../ui/textarea";
+import { isBase64Image } from "@/lib/utils";
+import { useUploadThing } from "@/lib/uploadthing";
+import { updateUser } from "@/lib/actions/user.action";
+import { usePathname, useRouter } from "next/navigation";
 
 type Props = {
   user: {
@@ -36,8 +40,15 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
     "🚀 ~ file: AccountProfile.tsx:35 ~ AccountProfile ~ user:",
     user
   );
+
+  const [files, setFiles] = useState<File[]>([]);
+  const { startUpload } = useUploadThing("media");
+
+  const pathname = usePathname()
+  const router = useRouter()
+
   // 1. Define your form.
-  const form = useForm({
+  const form = useForm<z.infer<typeof UserValidations>>({
     resolver: zodResolver(UserValidations),
     defaultValues: {
       profile_photo: user?.image ? user.image : "",
@@ -48,17 +59,69 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof UserValidations>) {
+  const onSubmit = async (values: z.infer<typeof UserValidations>) => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+
+    const blob = values.profile_photo;
+
+    // Base64 is a method of encoding binary data as ASCII text.
+    // This is necessary for sending files via Internet email,
+    // which can only handle 7-bit ASCII text.
+    // Base64 is the industry standard format for SSL certificate content
+    const hasImageChanged = isBase64Image(blob);
+
+    if (hasImageChanged) {
+      const imgRes = await startUpload(files);
+      console.log("~ imgRes: ---", imgRes);
+
+      if (imgRes && imgRes[0].fileUrl) {
+        values.profile_photo = imgRes[0].fileUrl;
+      }
+    }
+
+    await updateUser(
+      values.name,
+      values.username,
+      values.bio,
+      values.profile_photo,
+      user.id,
+      pathname
+      );
+
     console.log(values);
-  }
+  };
 
   const handleImage = (
     e: ChangeEvent<HTMLInputElement>,
     fieldChange: (value: string) => void
   ) => {
     e.preventDefault();
+
+    const fileReader = new FileReader();
+    console.log("fileReader:", fileReader);
+
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+
+      console.log("file ---", file);
+      console.log("Array.from(e.target.files) ---", Array.from(e.target.files));
+
+      setFiles(Array.from(e.target.files));
+
+      // GENERATE IMAGE URL USING FILE LOADER AND SET TO fieldChange
+      fileReader.onload = async (event) => {
+        console.log("fileReader.onload= ~ event: ----", event);
+        debugger;
+        const imageDataUrl = event.target?.result?.toString() || "";
+        fieldChange(imageDataUrl);
+      };
+
+      //readAsDataURL :- this method is used to read the contents of the specified File
+      fileReader.readAsDataURL(file);
+
+      if (!file.type.includes("image")) return;
+    }
   };
 
   return (
