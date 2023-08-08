@@ -44,10 +44,9 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
   const [files, setFiles] = useState<File[]>([]);
   const { startUpload } = useUploadThing("media");
 
-  const pathname = usePathname()
-  const router = useRouter()
+  const pathname = usePathname();
+  const router = useRouter();
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof UserValidations>>({
     resolver: zodResolver(UserValidations),
     defaultValues: {
@@ -58,9 +57,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
     },
   });
 
-  // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof UserValidations>) => {
-    // Do something with the form values.
     // ✅ This will be type-safe and validated.
 
     const blob = values.profile_photo;
@@ -80,14 +77,20 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
       }
     }
 
-    await updateUser(
-      values.name,
-      values.username,
-      values.bio,
-      values.profile_photo,
-      user.id,
-      pathname
-      );
+    await updateUser({
+      userId: user.id,
+      name: values.name,
+      username: values.username,
+      image: values.profile_photo,
+      bio: values.bio,
+      path: pathname,
+    });
+
+    if (pathname === "/profile/edit") {
+      router.back();
+    } else {
+      router.push("/");
+    }
 
     console.log(values);
   };

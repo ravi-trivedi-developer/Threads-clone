@@ -1,15 +1,36 @@
+"use server";
+
 import { revalidatePath } from "next/cache";
 import User from "../models/user.model";
 import { connectToDB } from "../mongoose";
 
-export async function updateUser(
-  userId: string,
-  name: string,
-  username: string,
-  bio: string,
-  image: string,
-  path: string
-): Promise<void> {
+interface Params {
+  userId: string;
+  name: string;
+  username: string;
+  bio: string;
+  image: string;
+  path: string;
+}
+
+export async function fetchUser(userId: string) {
+  try {
+    connectToDB();
+
+    return await User.findOne({ id: userId });
+  } catch (error: any) {
+    throw new Error(`Failed to fetch user: ${error.message}`);
+  }
+}
+
+export async function updateUser({
+  userId,
+  name,
+  username,
+  bio,
+  image,
+  path,
+}: Params): Promise<void> {
   connectToDB();
 
   try {
@@ -23,6 +44,7 @@ export async function updateUser(
         bio,
         image,
         path,
+        onboarded: true,
       },
       {
         upsert: true, // this will create a new row if does not exists

@@ -1,19 +1,24 @@
 import AccountProfile from "@/components/forms/AccountProfile";
+import { fetchUser } from "@/lib/actions/user.action";
 import { currentUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 
 async function Home() {
   const user = await currentUser();
-  console.log("🚀 ~ file: page.tsx:6 ~ Home ~ user:", user);
+  if (!user) return null; // to avoid typescript warnings
 
-  const userInfo = {};
+  console.log("10~ user:", user);
+
+  const userInfo = await fetchUser(user?.id);
+  if (userInfo?.onboarded) redirect("/");
 
   const userData = {
-    id: user?.id,
-    objectId: userInfo?._id,
-    username: userInfo ? userInfo?.username : user?.username,
+    id: user.id || "",
+    objectId: userInfo?._id.toString() || "",
+    username: userInfo?.username || "",
     name: userInfo ? userInfo?.name : user.firstName ?? "",
-    bio: userInfo ? userInfo?.bio : "",
-    image: userInfo ? userInfo?.image : user.imageUrl,
+    bio: userInfo?.bio || "",
+    image: userInfo?.image || "",
   };
 
   return (

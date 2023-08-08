@@ -1,22 +1,21 @@
 import mongoose from "mongoose";
-import { string } from "zod";
 
 const userSchema = new mongoose.Schema({
   id: {
-    type: string,
+    type: String,
     required: true,
   },
   username: {
-    type: string,
+    type: String,
     required: true,
     unique: true,
   },
   name: {
-    type: string,
+    type: String,
     required: true,
   },
-  image: string,
-  bio: string,
+  image: String,
+  bio: String,
   threads: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -35,6 +34,6 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 
 export default User;
