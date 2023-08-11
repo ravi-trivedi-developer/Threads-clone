@@ -45,7 +45,10 @@ export async function fetchPosts(pageNumber = 1, pageSize = 20) {
 
   // calculate the number of posts to skip
   const skipAmount = (pageNumber - 1) * pageSize;
-  console.log("skipAmount -----------------:", skipAmount);
+  // (1 - 1) * 20 = 0
+  // (2 - 1) * 20 = 20
+  // (3 - 1) * 20 = 40
+  // (4 - 1) * 20 = 60
 
   // Fetch posts that have no parents [top-level threads]
   const postQuery = await Thread.find({
@@ -77,9 +80,6 @@ export async function fetchPosts(pageNumber = 1, pageSize = 20) {
       $in: [null, undefined],
     },
   });
-  console.log(" postQuery.length: -------------------------", postQuery.length);
-  console.log(" skipAmount: -------------------------", skipAmount);
-  console.log(" totalPostsCount: -------------------------", totalPostsCount);
 
   const isNext = totalPostsCount > skipAmount + postQuery.length;
 
@@ -102,7 +102,6 @@ export async function fetchThreadById(id: string) {
       })
       .populate({
         path: "children",
-        model: Thread,
         populate: [
           {
             path: "author",

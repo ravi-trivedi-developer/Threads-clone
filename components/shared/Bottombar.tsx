@@ -13,14 +13,14 @@ const Bottombar = () => {
     <section className="bottombar">
       <div className="bottombar_container">
         {sidebarLinks.map((link) => {
-          console.log("----------1", pathname.includes(link.route));
-          console.log("----------2", link.route);
+          // console.log("----------1", pathname.includes(link.route));
+          // console.log("----------2", link.route);
 
           const isActive =
             (pathname.includes(link.route) && link.route.length > 1) ||
             pathname === link.route;
 
-          console.log("isActive ---", isActive);
+          // console.log("isActive ---", isActive);
 
           return (
             <Link

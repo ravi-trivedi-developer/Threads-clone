@@ -17,8 +17,8 @@ const LeftSidebar = () => {
     <section className="custom-scrollbar leftsidebar">
       <div className="flex w-full flex-1 flex-col gap-6 px-6">
         {sidebarLinks.map((link) => {
-          console.log("----------1", pathname.includes(link.route));
-          console.log("----------2", link.route);
+          // console.log("----------1", pathname.includes(link.route));
+          // console.log("----------2", link.route);
 
           const isActive =
             (pathname.includes(link.route) && link.route.length > 1) ||

@@ -37,7 +37,7 @@ const Page = async ({ params }: Props) => {
           author={thread.author}
           community={thread.community}
           createdAt={thread.createdAt}
-          comments={thread.comments}
+          comments={thread.children}
         />
       </div>
 
@@ -60,7 +60,7 @@ const Page = async ({ params }: Props) => {
             author={childItem.author}
             community={childItem.community}
             createdAt={childItem.createdAt}
-            comments={childItem.comments}
+            comments={childItem.children}
             isComment
           />
         ))}
